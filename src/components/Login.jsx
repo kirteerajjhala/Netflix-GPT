@@ -1,9 +1,11 @@
 import React, { useRef, useState } from "react";
 import Header from "./Header";
 import { checkValidateData } from "../utils/valiate";
-import {  createUserWithEmailAndPassword ,signInWithEmailAndPassword  } from "firebase/auth";
+import {  createUserWithEmailAndPassword ,signInWithEmailAndPassword, updateProfile  } from "firebase/auth";
 import { auth } from "../utils/firebase";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../redux/userSlice";
 const Login = () => {
     let [isSignIn , setIsSignIn] = useState(true)
     const [errorMessage ,setErrorMessage] =useState(null)
@@ -11,6 +13,7 @@ const Login = () => {
     const password = useRef(null)
     const name = useRef(null)
     const navigate = useNavigate();
+    const dispatch = useDispatch()
 const toggelToSignIn =()=>{
     setIsSignIn((pre)=>!pre)
 }  
@@ -24,9 +27,22 @@ if (Message!==null) return;
 
 if (isSignIn) {
   createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
-  .then((userCredential) => {
+  .then(() => {
     // Signed up 
-    console.log(userCredential.user)
+     const user = auth.currentUser;
+  updateProfile(user, {
+    displayName: name.current.value,
+    
+  })
+  .then(() => {
+   const  {uid , email ,displayName } =  auth.currentUser
+    console.log("Profile updated successfully!");
+    dispatch(addUser({uid ,email ,displayName}))
+  })
+  .catch((error) => {
+    console.error("Error updating profile:", error.message);
+  });
+ 
     navigate("/browse")
     // ...
   })

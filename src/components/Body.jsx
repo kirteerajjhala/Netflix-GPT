@@ -22,7 +22,6 @@ const dispatch = useDispatch()
 
  onAuthStateChanged(auth, (user) => {
   if (user) {
-   
     const {uid , email ,displayName } = user;
     dispatch(addUser({uid ,email ,displayName}))
    
